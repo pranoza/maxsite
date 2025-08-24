@@ -137,12 +137,6 @@ const App = () => {
     setLoading(true);
     setError(null);
 
-    if (!DIRECTUS_ACCESS_TOKEN || DIRECTUS_ACCESS_TOKEN === 'لطفا توکن استاتیک خود را اینجا وارد کنید') {
-        setError('توکن دسترسی در کد تنظیم نشده است. لطفاً فایل index.tsx را ویرایش کرده و مقدار DIRECTUS_ACCESS_TOKEN را مشخص کنید.');
-        setLoading(false);
-        return;
-    }
-
     const apiUrl = `${DIRECTUS_URL}/items/Products?access_token=${DIRECTUS_ACCESS_TOKEN}`;
 
     try {
