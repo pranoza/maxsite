@@ -95,7 +95,7 @@ const ProductCard = ({ product }: { product: Product }) => (
   }}>
     {product.feature_image ? (
         <img 
-            src={`${DIRECTUS_URL}/assets/${product.feature_image}?width=400&height=600&fit=cover`}
+            src={`${DIRECTUS_URL}/assets/${product.feature_image}?width=400&height=600&fit=cover&access_token=${DIRECTUS_ACCESS_TOKEN}`}
             alt={product.title}
             style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 1 }}
             loading="lazy"
