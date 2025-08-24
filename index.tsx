@@ -87,28 +87,52 @@ const ProductCard = ({ product }: { product: Product }) => (
     borderRadius: '12px',
     boxShadow: '0 4px 15px -2px var(--shadow-color)',
     overflow: 'hidden',
+    position: 'relative',
+    aspectRatio: '2 / 3',
+    color: 'white',
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'flex-end'
   }}>
-    <div style={{ height: '200px', backgroundColor: '#ecf0f1' }}>
-        {product.feature_image ? (
-            <img 
-                src={`${DIRECTUS_URL}/assets/${product.feature_image}?width=400&height=400&fit=cover`}
-                alt={product.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                loading="lazy"
-            />
-        ) : <div style={{width: '100%', height: '100%', display:'flex', alignItems:'center', justifyContent: 'center', color: '#bdc3c7'}}>بدون تصویر</div>}
-    </div>
-    <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-      <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: 'var(--text-color)', flexGrow: 1 }}>{product.title}</h3>
+    {product.feature_image ? (
+        <img 
+            src={`${DIRECTUS_URL}/assets/${product.feature_image}?width=400&height=600&fit=cover`}
+            alt={product.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+            loading="lazy"
+        />
+    ) : (
+        <div style={{
+            width: '100%', 
+            height: '100%', 
+            display:'flex', 
+            alignItems:'center', 
+            justifyContent: 'center', 
+            backgroundColor: '#ecf0f1',
+            color: '#bdc3c7',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1,
+        }}>
+            بدون تصویر
+        </div>
+    )}
+    <div style={{
+        position: 'relative',
+        zIndex: 2,
+        width: '100%',
+        padding: '20px',
+        background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%)',
+        boxSizing: 'border-box'
+    }}>
+      <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{product.title}</h3>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: '15px'
+        marginTop: '10px'
       }}>
-        <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+        <span style={{ fontSize: '1.1rem', fontWeight: 'bold', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
           {formatPrice(product.base_price)}
         </span>
         <button style={{
@@ -137,7 +161,7 @@ const App = () => {
     setLoading(true);
     setError(null);
 
-    const apiUrl = `${DIRECTUS_URL}/items/Products?access_token=${DIRECTUS_ACCESS_TOKEN}`;
+    const apiUrl = `${DIRECTUS_URL}/items/Products?fields=id,title,base_price,feature_image&access_token=${DIRECTUS_ACCESS_TOKEN}`;
 
     try {
       const response = await fetch(apiUrl);
