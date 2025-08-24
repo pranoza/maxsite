@@ -5,8 +5,15 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Serve static files from the root directory.
-// This includes your index.html, index.tsx, and other files.
-app.use(express.static(path.join(__dirname, '')));
+// Set the correct MIME type for .tsx files so the browser doesn't block them.
+app.use(express.static(path.join(__dirname, ''), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.tsx')) {
+      // Set the content type to match the script type in index.html
+      res.setHeader('Content-Type', 'text/babel; charset=UTF-8');
+    }
+  }
+}));
 
 // This route handler must be the last one.
 // It ensures that for any request that doesn't match a static file,
