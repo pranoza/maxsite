@@ -337,7 +337,7 @@ const App = () => {
 
   useEffect(() => {
       const handleHashChange = () => {
-          const hash = window.location.hash.slice(1);
+          const hash = window.location.hash.slice(2); // Fix: Remove '#/'
           const [path, id] = hash.split('/');
           
           if (path === 'product' && id && !isNaN(parseInt(id, 10))) {
