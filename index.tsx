@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -88,7 +89,7 @@ const ErrorMessage = ({ message, onRetry }: { message: string; onRetry?: () => v
 );
 
 const ProductCard = ({ product }: { product: Product }) => (
-  <a href={`#/product/${product.id}`} className="product-card" style={{
+  <a href={`/product/${product.id}`} className="product-card" style={{
     backgroundColor: 'var(--card-background-color)',
     borderRadius: '12px',
     boxShadow: '0 4px 15px -2px var(--shadow-color)',
@@ -261,7 +262,7 @@ const ProductDetail = ({ productId }: { productId: number }) => {
     return (
         <main>
             <div style={{ marginBottom: '30px' }}>
-                <a href="#" style={{ color: 'var(--primary-color)', textDecoration: 'none', fontWeight: 'bold' }}>
+                <a href="/" style={{ color: 'var(--primary-color)', textDecoration: 'none', fontWeight: 'bold' }}>
                     &larr; بازگشت به محصولات
                 </a>
             </div>
@@ -287,16 +288,41 @@ const ProductDetail = ({ productId }: { productId: number }) => {
                         .product-description p { line-height: 1.8; }
                         .product-description a { color: var(--primary-color); }
                     `}</style>
-                    <div className="product-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}>
-                        <div>
+                    <div className="product-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px', alignItems: 'flex-start' }}>
+                        <div style={{
+                            position: 'relative',
+                            width: '100%',
+                            paddingTop: '100%', /* 1:1 Aspect Ratio */
+                            backgroundColor: 'var(--background-color)',
+                            borderRadius: '8px',
+                            overflow: 'hidden'
+                        }}>
                             {product.feature_image ? (
                                 <img 
-                                    src={`${DIRECTUS_URL}/assets/${product.feature_image}?width=600&height=600&fit=contain&access_token=${DIRECTUS_ACCESS_TOKEN}`} 
+                                    src={`${DIRECTUS_URL}/assets/${product.feature_image}?width=600&access_token=${DIRECTUS_ACCESS_TOKEN}`} 
                                     alt={product.title} 
-                                    style={{ width: '100%', height: 'auto', borderRadius: '8px', objectFit: 'cover' }} 
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'contain',
+                                    }} 
                                 />
                             ) : (
-                                <div style={{width: '100%', aspectRatio: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ecf0f1', color: '#bdc3c7', borderRadius: '8px' }}>بدون تصویر</div>
+                                <div style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#bdc3c7',
+                                    fontSize: '1.2rem'
+                                }}>بدون تصویر</div>
                             )}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -335,25 +361,45 @@ const ProductDetail = ({ productId }: { productId: number }) => {
 const App = () => {
   const [route, setRoute] = useState({ page: 'list', id: null as number | null });
 
+  const handleLocationChange = useCallback(() => {
+    const path = window.location.pathname;
+    const parts = path.split('/').filter(p => p);
+
+    if (parts[0] === 'product' && parts[1] && !isNaN(parseInt(parts[1], 10))) {
+        setRoute({ page: 'detail', id: parseInt(parts[1], 10) });
+    } else {
+        setRoute({ page: 'list', id: null });
+    }
+  }, []);
+
   useEffect(() => {
-      const handleHashChange = () => {
-          const hash = window.location.hash.slice(2); // Fix: Remove '#/'
-          const [path, id] = hash.split('/');
+      const handleLinkClick = (e: MouseEvent) => {
+          const target = e.target as HTMLElement;
+          const anchor = target.closest('a');
           
-          if (path === 'product' && id && !isNaN(parseInt(id, 10))) {
-              setRoute({ page: 'detail', id: parseInt(id, 10) });
-          } else {
-              setRoute({ page: 'list', id: null });
+          if (
+              anchor &&
+              anchor.target !== '_blank' &&
+              !e.metaKey &&
+              !e.ctrlKey &&
+              anchor.origin === window.location.origin
+          ) {
+              e.preventDefault();
+              window.history.pushState({}, '', anchor.href);
+              handleLocationChange();
           }
       };
 
-      window.addEventListener('hashchange', handleHashChange, false);
-      handleHashChange(); // Parse initial hash
+      window.addEventListener('popstate', handleLocationChange);
+      document.addEventListener('click', handleLinkClick);
+
+      handleLocationChange(); // Initial route
 
       return () => {
-          window.removeEventListener('hashchange', handleHashChange, false);
+          window.removeEventListener('popstate', handleLocationChange);
+          document.removeEventListener('click', handleLinkClick);
       };
-  }, []);
+  }, [handleLocationChange]);
   
   return (
     <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '40px 20px', boxSizing: 'border-box' }}>
